@@ -32,8 +32,8 @@ class Network:
         self.layers = len(sizes)
         self.sizes = sizes
         self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
-        self.learn_rate = 0.001
-        self.gamma = 0.98
+        self.learn_rate = 0.01
+        self.gamma = 0.99
 
         # print(self.weights)
         
@@ -119,10 +119,10 @@ observation = env.reset()
 
 
 game_runsteps = 10000
-traning_games = 10
+traning_games = 100000
 games_to_show = 1
 #   get initial score to beat
-scores_to_collect = 100
+scores_to_collect = 10000
 scores = []
 for _ in range(scores_to_collect):
     env.reset()
@@ -165,7 +165,7 @@ for i in range(traning_games):
     z_values = []
     for _ in range(game_runsteps):
         # if i % games_to_show == 0:
-        env.render()
+        # env.render()
         n_values, z = network.feedforward(np.reshape(observation, (len(observation), 1)))
         result = n_values[-1]
         r = np.reshape(result, len(result))
@@ -187,9 +187,14 @@ for i in range(traning_games):
             #   If the network preformed poorly similar actions will be discouraged but if it preformed well the actions taken will be encouraged
             if score > score_to_beat:
                 network.backprop(n_values_game, z_values, weights_game, actions, 1)
-            else:
-                network.backprop(n_values_game, z_values, weights_game, actions, 0)
+            # else:
+                # network.backprop(n_values_game, z_values, weights_game, actions, 0)
             break
+    if i % 500 == 0:
+        print("iteration: " + str(i))
+        print("score = " + str(score))
+        print("mean = " + str(mean(scores)))
+    
 env.reset()
 env.close()
 
