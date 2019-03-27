@@ -2,7 +2,7 @@ import gym
 import random
 import numpy as np
 import time
-import yaml
+# import yaml
 
 def sigmoid(z):
     return 1.0/(1.0+np.exp(-z))
@@ -54,6 +54,29 @@ class Network:
 
         steps_from_start = 0
 
+        # for val in all_n_values:
+        #     l = 1
+        #     if desiered_val == 1:
+        #         change_v[-1][a][0] = 1
+        #     else:
+        #         for index in range(len(change_v[-1])):
+        #             change_v[-1][index][0] = 1
+        #         change_v[-1][a][0] = 0
+            
+        #     while l < self.layers:
+        #         for i in range(len(val[-l])):
+        #             for j in range(len(w[-l][i])):
+                        
+        #         l += 1
+        #     steps_from_start += 1
+
+
+        # steps_from_start = 0
+
+        # change_v = [np.zeros(v.shape) for v in all_n_values[0]]
+        # change_v[-l-1][j] -= (w[-l][i][j] * sigmoid_prime(z_val[-l][i]) * 2 * (val[-l][i] - change_v[-l][i][0])) * (self.gamma**steps_from_start) * self.learn_rate
+
+
         #   network
         for val, z_val, w, a in zip(all_n_values, z_values, all_w, actions):
             l = 1
@@ -85,7 +108,7 @@ class Network:
                 for weight in range(len(self.weights[layer][neuron])):
                     self.weights[layer][neuron][weight] += change_w[layer][neuron][weight]
 
-        print(change_w)
+        # print(change_w)
 
 
 
@@ -96,7 +119,7 @@ observation = env.reset()
 
 
 game_runsteps = 10000
-traning_games = 100
+traning_games = 10
 games_to_show = 1
 #   get initial score to beat
 scores_to_collect = 100
@@ -142,7 +165,7 @@ for i in range(traning_games):
     z_values = []
     for _ in range(game_runsteps):
         # if i % games_to_show == 0:
-        # env.render()
+        env.render()
         n_values, z = network.feedforward(np.reshape(observation, (len(observation), 1)))
         result = n_values[-1]
         r = np.reshape(result, len(result))
