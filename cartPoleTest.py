@@ -32,7 +32,8 @@ class Network:
         self.layers = len(sizes)
         self.sizes = sizes
         self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
-        self.learn_rate = 0.01
+        self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
+        self.learn_rate = 0.001
         self.gamma = 0.99
 
         # print(self.weights)
@@ -41,8 +42,8 @@ class Network:
     def feedforward(self, a):
         values = [a]
         all_z = [[None]]
-        for w in self.weights:
-            z = np.dot(w, a)
+        for w, b in zip(self.weights, self.biases):
+            z = np.dot(w, a) + b
             all_z.append(z)
             a = sigmoid(z)
             values.append(a)
@@ -51,7 +52,7 @@ class Network:
     def backprop(self, all_n_values, z_values, all_w, actions, desiered_val):
 
         change_w = [np.zeros(w.shape) for w in self.weights]
-
+        change_b = [np.zeros(b.shape) for b in self.biases]
         steps_from_start = 0
 
         # for val in all_n_values:
@@ -96,6 +97,7 @@ class Network:
                 for i in range(len(val[-l])):
                     #   weights connected to specific neuron
                     #   j is a specific weight and also the neuron it is connected to in the previous layer
+                    change_b[-l][i] -= (sigmoid_prime(z_val[-l][i]) * 2 * (val[-l][i] - change_v[-l][i][0])) * (self.gamma**steps_from_start) * self.learn_rate
                     for j in range(len(w[-l][i])):
                         change_w[-l][i][j] -= (val[(-l-1)][j] * sigmoid_prime(z_val[-l][i]) * 2 * (val[-l][i] - change_v[-l][i][0])) * (self.gamma**steps_from_start) * self.learn_rate
                         change_v[-l-1][j] -= (w[-l][i][j] * sigmoid_prime(z_val[-l][i]) * 2 * (val[-l][i] - change_v[-l][i][0])) * (self.gamma**steps_from_start) * self.learn_rate
@@ -105,6 +107,7 @@ class Network:
         #   increase/decrease each weight by calculated value
         for layer in range(len(self.weights)):
             for neuron in range(len(self.weights[layer])):
+                self.biases[layer][neuron] += change_b[layer][neuron]
                 for weight in range(len(self.weights[layer][neuron])):
                     self.weights[layer][neuron][weight] += change_w[layer][neuron][weight]
 
@@ -119,7 +122,7 @@ observation = env.reset()
 
 
 game_runsteps = 10000
-traning_games = 10
+traning_games = 10000
 games_to_show = 1
 #   get initial score to beat
 scores_to_collect = 10000
@@ -155,7 +158,7 @@ observation, reward, done, info = env.step(action)
 
 input_layer = len(observation)
 
-network = Network([input_layer, 16, 16, env.action_space.n])
+network = Network([input_layer, 16, env.action_space.n])
 for i in range(traning_games):
     env.reset()
     score = 0 
@@ -165,7 +168,7 @@ for i in range(traning_games):
     z_values = []
     for _ in range(game_runsteps):
         # if i % games_to_show == 0:
-        env.render()
+        # env.render()
         n_values, z = network.feedforward(np.reshape(observation, (len(observation), 1)))
         result = n_values[-1]
         r = np.reshape(result, len(result))
@@ -186,9 +189,10 @@ for i in range(traning_games):
             #   The last input to the function is the desiered output for the output neuron which was triggered
             #   If the network preformed poorly similar actions will be discouraged but if it preformed well the actions taken will be encouraged
             if score > score_to_beat:
-                network.backprop(n_values_game, z_values, weights_game, actions, 1)
-            # else:
-                # network.backprop(n_values_game, z_values, weights_game, actions, 0)
+                network.backprop(n_values_game, z_values, weights_game, actions, (1 + score - score_to_beat))
+                print(1 + score - score_to_beat)
+            else:
+                network.backprop(n_values_game, z_values, weights_game, actions, (-1 + score - score_to_beat))
             break
     if i % 500 == 0:
         print("iteration: " + str(i))
