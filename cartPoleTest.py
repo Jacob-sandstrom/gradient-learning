@@ -119,7 +119,7 @@ observation = env.reset()
 
 
 game_runsteps = 10000
-traning_games = 100000
+traning_games = 10
 games_to_show = 1
 #   get initial score to beat
 scores_to_collect = 10000
@@ -165,7 +165,7 @@ for i in range(traning_games):
     z_values = []
     for _ in range(game_runsteps):
         # if i % games_to_show == 0:
-        # env.render()
+        env.render()
         n_values, z = network.feedforward(np.reshape(observation, (len(observation), 1)))
         result = n_values[-1]
         r = np.reshape(result, len(result))
