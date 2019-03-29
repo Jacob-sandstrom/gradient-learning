@@ -33,7 +33,7 @@ class Network:
         self.sizes = sizes
         self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
-        self.learn_rate = 0.001
+        self.learn_rate = 0.1
         self.gamma = 0.99
 
         # print(self.weights)
@@ -168,12 +168,12 @@ for i in range(traning_games):
     z_values = []
     for _ in range(game_runsteps):
         # if i % games_to_show == 0:
-        # env.render()
+        env.render()
         n_values, z = network.feedforward(np.reshape(observation, (len(observation), 1)))
         result = n_values[-1]
         r = np.reshape(result, len(result))
         action = max_index(r)
-        action = env.action_space.sample()
+        # action = env.action_space.sample()
         observation, reward, done, info = env.step(action)
         score += reward
         #   store values for backprop
@@ -190,7 +190,7 @@ for i in range(traning_games):
             #   If the network preformed poorly similar actions will be discouraged but if it preformed well the actions taken will be encouraged
             if score > score_to_beat:
                 network.backprop(n_values_game, z_values, weights_game, actions, (1 + score - score_to_beat))
-                print(1 + score - score_to_beat)
+                # print(1 + score - score_to_beat)
             else:
                 network.backprop(n_values_game, z_values, weights_game, actions, (-1 + score - score_to_beat))
             break
