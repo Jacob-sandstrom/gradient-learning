@@ -34,7 +34,7 @@ class Network:
         self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
         self.learn_rate = 0.1
-        self.gamma = 0.99
+        self.gamma = 0.97
 
         # print(self.weights)
         
@@ -125,7 +125,7 @@ game_runsteps = 10000
 traning_games = 10000
 games_to_show = 1
 #   get initial score to beat
-scores_to_collect = 10000
+scores_to_collect = 100
 scores = []
 for _ in range(scores_to_collect):
     env.reset()
@@ -182,19 +182,23 @@ for i in range(traning_games):
         n_values_game.append(n_values)
         weights_game.append(network.weights)
         if (done):
-            scores.append(score)
-            score_to_beat = mean(scores)
             # print(score)
             #   check if score is over desiered amount
             #   The last input to the function is the desiered output for the output neuron which was triggered
             #   If the network preformed poorly similar actions will be discouraged but if it preformed well the actions taken will be encouraged
             if score > score_to_beat:
-                network.backprop(n_values_game, z_values, weights_game, actions, (1 + score - score_to_beat))
+                scores.append(score)
+                score_to_beat = mean(scores)
+                if score -  score_to_beat > 30:
+                    network.backprop(n_values_game, z_values, weights_game, actions, 10)
+                else:
+                    network.backprop(n_values_game, z_values, weights_game, actions, 1)
                 # print(1 + score - score_to_beat)
             else:
-                network.backprop(n_values_game, z_values, weights_game, actions, (-1 + score - score_to_beat))
+                network.backprop(n_values_game, z_values, weights_game, actions, -1)
+                # (-1 + score - score_to_beat)
             break
-    if i % 500 == 0:
+    if i % 100 == 0:
         print("iteration: " + str(i))
         print("score = " + str(score))
         print("mean = " + str(mean(scores)))
