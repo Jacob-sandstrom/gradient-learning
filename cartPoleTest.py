@@ -115,14 +115,14 @@ class Network:
 
 
 
-env = gym.make('CartPole-v1')
-# env = gym.make('MountainCar-v0')
+# env = gym.make('CartPole-v1')
+env = gym.make('FrozenLake-v0')
 env.reset()
 observation = env.reset()
 
 
-game_runsteps = 10000
-traning_games = 10000
+game_runsteps = 300
+traning_games = 1000
 games_to_show = 1
 #   get initial score to beat
 scores_to_collect = 100
@@ -173,7 +173,7 @@ for i in range(traning_games):
         result = n_values[-1]
         r = np.reshape(result, len(result))
         action = max_index(r)
-        # action = env.action_space.sample()
+        # action = env.action_space.sample()    #   takes random action
         observation, reward, done, info = env.step(action)
         score += reward
         #   store values for backprop
@@ -182,22 +182,22 @@ for i in range(traning_games):
         n_values_game.append(n_values)
         weights_game.append(network.weights)
         if (done):
-            # print(score)
-            #   check if score is over desiered amount
-            #   The last input to the function is the desiered output for the output neuron which was triggered
-            #   If the network preformed poorly similar actions will be discouraged but if it preformed well the actions taken will be encouraged
-            if score > score_to_beat:
-                scores.append(score)
-                score_to_beat = mean(scores)
-                if score -  score_to_beat > 30:
-                    network.backprop(n_values_game, z_values, weights_game, actions, 10)
-                else:
-                    network.backprop(n_values_game, z_values, weights_game, actions, 1)
-                # print(1 + score - score_to_beat)
-            else:
-                network.backprop(n_values_game, z_values, weights_game, actions, -1)
-                # (-1 + score - score_to_beat)
             break
+    # print(score)
+    #   check if score is over desiered amount
+    #   The last input to the function is the desiered output for the output neuron which was triggered
+    #   If the network preformed poorly similar actions will be discouraged but if it preformed well the actions taken will be encouraged
+    if score > score_to_beat:
+        scores.append(score)
+        score_to_beat = mean(scores)
+        if score -  score_to_beat > 30:
+            network.backprop(n_values_game, z_values, weights_game, actions, 10)
+        else:
+            network.backprop(n_values_game, z_values, weights_game, actions, 1)
+        # print(1 + score - score_to_beat)
+    else:
+        network.backprop(n_values_game, z_values, weights_game, actions, -1)
+        # (-1 + score - score_to_beat)
     if i % 100 == 0:
         print("iteration: " + str(i))
         print("score = " + str(score))
