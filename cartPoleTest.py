@@ -115,8 +115,8 @@ class Network:
 
 
 
-# env = gym.make('CartPole-v1')
-env = gym.make('FrozenLake-v0')
+env = gym.make('CartPole-v1')
+# env = gym.make('FrozenLake-v0')
 env.reset()
 observation = env.reset()
 
