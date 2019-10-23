@@ -33,7 +33,7 @@ class Network:
         self.sizes = sizes
         self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
-        self.learn_rate = 0.1
+        self.learn_rate = 0.01
         self.gamma = 0.97
 
         # print(self.weights)
@@ -97,10 +97,10 @@ class Network:
                 for i in range(len(val[-l])):
                     #   weights connected to specific neuron
                     #   j is a specific weight and also the neuron it is connected to in the previous layer
-                    change_b[-l][i] -= (sigmoid_prime(z_val[-l][i]) * 2 * (val[-l][i] - change_v[-l][i][0])) * (self.gamma**steps_from_start) * self.learn_rate
+                    change_b[-l][i] -= (sigmoid_prime(z_val[-l][i]) * 2 * (val[-l][i] - change_v[-l][i][0])) * self.learn_rate                              #  * (self.gamma**steps_from_start)
                     for j in range(len(w[-l][i])):
-                        change_w[-l][i][j] -= (val[(-l-1)][j] * sigmoid_prime(z_val[-l][i]) * 2 * (val[-l][i] - change_v[-l][i][0])) * (self.gamma**steps_from_start) * self.learn_rate
-                        change_v[-l-1][j] -= (w[-l][i][j] * sigmoid_prime(z_val[-l][i]) * 2 * (val[-l][i] - change_v[-l][i][0])) * (self.gamma**steps_from_start) * self.learn_rate
+                        change_w[-l][i][j] -= (val[(-l-1)][j] * sigmoid_prime(z_val[-l][i]) * 2 * (val[-l][i] - change_v[-l][i][0])) * self.learn_rate      #  * (self.gamma**steps_from_start)
+                        change_v[-l-1][j] -= (w[-l][i][j] * sigmoid_prime(z_val[-l][i]) * 2 * (val[-l][i] - change_v[-l][i][0])) * self.learn_rate          #  * (self.gamma**steps_from_start)
 
                 l += 1
             steps_from_start += 1
@@ -168,7 +168,7 @@ for i in range(traning_games):
     z_values = []
     for _ in range(game_runsteps):
         # if i % games_to_show == 0:
-        env.render()
+        env.render()                                                                                  # should it render?
         n_values, z = network.feedforward(np.reshape(observation, (len(observation), 1)))
         result = n_values[-1]
         r = np.reshape(result, len(result))
